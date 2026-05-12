@@ -1,4 +1,4 @@
-import type { Context, Tables } from 'koishi'
+import type { Channel, Context, h, Tables } from 'koishi'
 import {} from '@koishijs/plugin-help'
 import { Jieba } from '@node-rs/jieba'
 import { dict } from '@node-rs/jieba/dict'
@@ -49,6 +49,7 @@ export async function apply(ctx: Context, config: Config) {
   }, { primary: 'id' })
 
   const jieba = Jieba.withDict(dict)
+  const streaming = new Map<Channel['id'], number>()
 
   ctx.command('vayu [id:number]', '从随蓝题库中出题。')
     .alias('随蓝', '📘来一道随蓝')
@@ -102,7 +103,14 @@ export async function apply(ctx: Context, config: Config) {
         }
       }
 
-      await stream(session, generator(session.isDirect))
+      streaming.set(session.channelId!, vayu.id)
+      const send = (element: h): Promise<[string]> => {
+        return streaming.get(session.channelId!)
+          ? session.send(element) as Promise<[string]>
+          : Promise.resolve([''])
+      }
+
+      await stream(generator(session.isDirect), send)
     })
     .subcommand('.answer <id:number> <answer:string>', '回答随蓝')
     .action(async ({ session }, id, answer) => {
@@ -116,6 +124,9 @@ export async function apply(ctx: Context, config: Config) {
       if (!correctAnswer.includes(answer))
         return '❌️回答错误！'
       session.execute('vayu')
+      const vayuId = streaming.get(session.channelId!)
+      if (vayuId === id)
+        streaming.delete(session.channelId!)
       return '✅️回答正确！'
     })
 
