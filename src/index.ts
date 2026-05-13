@@ -85,7 +85,7 @@ export async function apply(ctx: Context, config: Config) {
           if (index === chunks.length - 1) {
             return [
               `${chunk}我读完了。`,
-              `> 回答随蓝 👉 ${shortcut.input(`/vayu.answer ${vayu.id}`)}`,
+              `> 回答随蓝 👉 ${shortcut.input(`/vayu.answer ${vayu.id} `)}`,
               `> 查看答案 👉 ${shortcut(isDirect, `/vayu ${vayu.id} -a`)}`,
               `> 再来一题 👉 ${shortcut(isDirect, '/vayu')}`,
             ].join('\n')
