@@ -17,10 +17,10 @@ export interface Config {
 }
 
 export const Config: Schema<Config> = Schema.object({
-  dataUrl: Schema.string().role('url').description('随蓝题库URL。').default('https://raw.githubusercontent.com/HanTingQuan/HTDictionary/refs/heads/main/vayu.csv'),
-  interval: Schema.number().default(3 * Time.second).role('ms').description('间隔时间。'),
-  maxChunks: Schema.number().default(5).description('最大分句数。'),
-  punctBias: Schema.number().min(0).step(0.05).default(0.7).max(2).role('slider').description('标点偏好系数，小于1时鼓励在标点后断句，大于1时抑制。'),
+  dataUrl: Schema.string().role('url').description('随蓝题库URL').default('https://raw.githubusercontent.com/HanTingQuan/HTDictionary/refs/heads/main/vayu.csv'),
+  interval: Schema.number().default(3 * Time.second).role('ms').description('间隔时间'),
+  maxChunks: Schema.number().default(5).description('最大分句数'),
+  punctBias: Schema.number().min(0).step(0.05).default(0.7).max(2).role('slider').description('标点偏好系数，小于1时鼓励在标点后断句，大于1时抑制'),
 })
 
 declare module 'koishi' {
@@ -51,11 +51,11 @@ export async function apply(ctx: Context, config: Config) {
   const jieba = Jieba.withDict(dict)
   const streaming = new Map<Channel['id'], number>()
 
-  ctx.command('vayu [id:number]', '从随蓝题库中出题。')
+  ctx.command('vayu [id:number]', '从随蓝题库中出题')
     .alias('随蓝', '📘来一道随蓝')
-    .option('interval', '-i <interval:number> 间隔时间（秒）。')
-    .option('answer', '-a 查看答案。')
-    .option('bias', '-b <bias:number> 标点偏好系数。', { hidden: true })
+    .option('interval', '-i <interval:number> 间隔时间（秒）')
+    .option('answer', '-a 查看答案')
+    .option('bias', '-b <bias:number> 标点偏好系数', { hidden: true })
     .action(async ({ options, session }, vayuId?: number) => {
       if (!session)
         return
