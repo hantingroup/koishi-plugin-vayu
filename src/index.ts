@@ -1,9 +1,7 @@
 import type { Channel, Context, Tables } from 'koishi'
-import { } from '@koishijs/plugin-help'
-import { Jieba } from '@node-rs/jieba'
-import { dict } from '@node-rs/jieba/dict'
-import { inlinecmd } from '@satorijs/adapter-qq'
+import {} from '@koishijs/plugin-help'
 import { $, h, Logger, Schema, sleep, Time } from 'koishi'
+import {} from 'koishi-plugin-jieba'
 import { mergeChunks } from './algorithm'
 
 export const name = 'vayu'
@@ -17,10 +15,10 @@ export interface Config {
 }
 
 export const Config: Schema<Config> = Schema.object({
-  dataUrl: Schema.string().role('url').description('随蓝题库URL。').default('https://raw.githubusercontent.com/HanTingQuan/HTDictionary/refs/heads/main/vayu.csv'),
+  dataUrl: Schema.string().role('link').description('题库 URL。').default('https://raw.githubusercontent.com/HanTingQuan/HTDictionary/refs/heads/main/vayu.csv'),
   interval: Schema.number().default(3 * Time.second).role('ms').description('间隔时间。'),
   maxChunks: Schema.number().default(5).description('最大分句数。'),
-  punctBias: Schema.number().min(0).step(0.05).default(0.7).max(2).role('slider').description('标点偏好系数，小于1时鼓励在标点后断句，大于1时抑制。'),
+  punctBias: Schema.number().min(0).step(0.01).default(0.7).max(1).role('slider').description('标点偏好系数，小于1时鼓励在标点处断句，大于1时抑制。'),
 })
 
 declare module 'koishi' {
@@ -35,7 +33,7 @@ declare module 'koishi' {
   }
 }
 
-export const inject = ['database']
+export const inject = ['database', 'jieba']
 
 const SPACE = /\s+/
 
@@ -48,7 +46,6 @@ export async function apply(ctx: Context, config: Config) {
     desc: 'string',
   }, { primary: 'id' })
 
-  const jieba = Jieba.withDict(dict)
   const streaming = new Map<Channel['id'], number>()
 
   ctx.command('vayu [id:number]', '从随蓝题库中出题')
@@ -73,32 +70,18 @@ export async function apply(ctx: Context, config: Config) {
       const description = vayu.desc.trim()
       const words = description.startsWith('1.')
         ? description.split(SPACE).map(word => `${word} `)
-        : jieba.cut(description)
+        : ctx.jieba.cut(description)
 
       const chunks = mergeChunks(words, config.maxChunks, options?.bias ?? config.punctBias)
       const interval = (options?.interval || 0) * 1000 || config.interval
 
-      const enter = session.isDirect
+      await session.send(h('stream', `${vayu.source}#${vayu.id}${vayu.vayu}\n`))
+
       for (let index = 0; index < chunks.length; index++) {
         const chunk = chunks[index]
-
-        if (index === chunks.length - 1) {
-          return h('stream', { done: true }, [
-            `${chunk}我读完了。`,
-            `> 回答随蓝 👉 ${inlinecmd({ text: `/vayu.answer ${vayu.id} ` })}`,
-            `> 查看答案 👉 ${inlinecmd({ enter, text: `/vayu ${vayu.id} -a` })}`,
-            `> 再来一题 👉 ${inlinecmd({ enter, text: '/vayu' })}`,
-          ].join('\n'))
-        }
-
-        // eslint-disable-next-line style/multiline-ternary
-        await session.send(h('stream', index === 0 ? [
-          vayu.source,
-          inlinecmd({ text: `/vayu.answer ${vayu.id} `, show: `#${vayu.id}` }),
-          vayu.vayu,
-          `\n${chunk}`,
-        ].join('') : chunk))
-
+        await session.send(h('stream', chunk))
+        if (index === chunks.length - 1)
+          return h('stream', { done: true }, '我读完了。')
         await sleep(interval)
       }
     })

@@ -1,9 +1,13 @@
 {
   "name": "koishi-plugin-vayu",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "",
   "typings": "lib/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hantingroup/koishi-plugin-vayu.git"
+  },
   "keywords": [
     "chatbot",
     "koishi",
@@ -15,11 +19,18 @@
     "lib"
   ],
   "peerDependencies": {
-    "@satorijs/adapter-qq": "*",
-    "koishi": "^4.18.7"
+    "koishi": "^4.18.7",
+    "koishi-plugin-jieba": "^0.5.0"
   },
   "dependencies": {
-    "@node-rs/jieba": "^2.0.1",
     "csv-parse": "^6.2.1"
+  },
+  "koishi": {
+    "service": {
+      "required": [
+        "database",
+        "jieba"
+      ]
+    }
   }
 }
