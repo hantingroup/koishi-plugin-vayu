@@ -65,7 +65,7 @@ export async function apply(ctx: Context, config: Config) {
         return '未找到符合条件的随蓝！'
 
       if (options?.answer)
-        return `${vayu.source}#${vayu.id}${vayu.vayu}\n${vayu.answer}\n${vayu.desc}`
+        return h.text(`${vayu.source}#${vayu.id}${vayu.vayu}\n${vayu.answer}\n${vayu.desc}`)
 
       const description = vayu.desc.trim()
       const words = description.startsWith('1.')
@@ -75,7 +75,12 @@ export async function apply(ctx: Context, config: Config) {
       const chunks = mergeChunks(words, config.maxChunks, options?.bias ?? config.punctBias)
       const interval = (options?.interval || 0) * 1000 || config.interval
 
-      await session.send(h('stream', `${vayu.source}#${vayu.id}${vayu.vayu}\n`))
+      await session.send(h(
+        'stream',
+        vayu.source,
+        h('inlinecmd', { text: `vayu.answer ${vayu.id}` }, `#${vayu.id}`),
+        `${vayu.vayu}\n`,
+      ))
 
       for (let index = 0; index < chunks.length; index++) {
         const chunk = chunks[index]
