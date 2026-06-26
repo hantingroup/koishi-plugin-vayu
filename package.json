@@ -1,6 +1,6 @@
 {
   "name": "koishi-plugin-vayu",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -19,11 +19,13 @@
     "lib"
   ],
   "peerDependencies": {
-    "koishi": "^4.18.7",
-    "koishi-plugin-jieba": "^0.5.0"
+    "koishi": "^4.18.7"
   },
   "dependencies": {
     "csv-parse": "^6.2.1"
+  },
+  "devDependencies": {
+    "koishi-plugin-jieba": "^0.5.0"
   },
   "koishi": {
     "service": {

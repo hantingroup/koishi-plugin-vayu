@@ -94,18 +94,17 @@ export async function apply(ctx: Context, config: Config) {
     .action(async ({ session }, id, answer) => {
       if (!session)
         return
-
       const [vayu] = await ctx.database.get('vayu', { id })
       if (!vayu)
-        return '未找到符合条件的随蓝！'
+        return await session.send('未找到符合条件的随蓝！')
       const correctAnswer = vayu.answer.split('/')
       if (!correctAnswer.includes(answer))
-        return '❌️回答错误！'
-      session.execute('vayu')
+        return await session.send('❌️回答错误！')
       const vayuId = streaming.get(session.channelId!)
       if (vayuId === id)
         streaming.delete(session.channelId!)
-      return '✅️回答正确！'
+      await session.send('✅️回答正确！')
+      await session.execute('vayu')
     })
 
   const stats = await ctx.database.stats()
