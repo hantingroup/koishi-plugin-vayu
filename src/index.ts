@@ -62,7 +62,7 @@ export async function apply(ctx: Context, config: Config) {
         .limit(1)
         .execute()
       if (!vayu)
-        return '未找到符合条件的随蓝！'
+        return await session.send('未找到符合条件的随蓝！')
 
       if (options?.answer)
         return h.text(`${vayu.source}#${vayu.id}${vayu.vayu}\n${vayu.answer}\n${vayu.desc}`)

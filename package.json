@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-vayu",
-  "version": "1.0.1",
-  "description": "",
+  "version": "1.0.2",
+  "description": "随蓝插件",
   "typings": "lib/index.d.ts",
   "license": "MIT",
   "repository": {
