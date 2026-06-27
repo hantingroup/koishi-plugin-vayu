@@ -14,12 +14,16 @@ export interface Config {
   punctBias: number
 }
 
-export const Config: Schema<Config> = Schema.object({
-  dataUrl: Schema.string().role('link').description('题库 URL。').default('https://raw.githubusercontent.com/HanTingQuan/HTDictionary/refs/heads/main/vayu.csv'),
-  interval: Schema.number().default(3 * Time.second).role('ms').description('间隔时间。'),
-  maxChunks: Schema.number().default(5).description('最大分句数。'),
-  punctBias: Schema.number().min(0).step(0.01).default(0.7).max(1).role('slider').description('标点偏好系数，小于1时鼓励在标点处断句，大于1时抑制。'),
-})
+export const Config: Schema<Config> = Schema.intersect([
+  Schema.object({
+    dataUrl: Schema.string().role('link').description('题库 URL。').default('https://raw.githubusercontent.com/HanTingQuan/HTDictionary/refs/heads/main/vayu.csv'),
+    interval: Schema.number().default(3 * Time.second).role('ms').description('间隔时间。'),
+    maxChunks: Schema.number().default(5).description('最大分句数。'),
+  }),
+  Schema.object({
+    punctBias: Schema.number().min(0).step(0.01).default(0.7).max(1).role('slider').description('标点偏好系数，小于1时鼓励在标点处断句，大于1时抑制。'),
+  }).description('高级设置'),
+])
 
 declare module 'koishi' {
   interface Tables {
