@@ -53,7 +53,6 @@ export async function apply(ctx: Context, config: Config) {
   const streaming = new Map<Channel['id'], number>()
 
   ctx.command('vayu [id:number]', '从随蓝题库中出题')
-    .alias('随蓝', '📘来一道随蓝')
     .option('interval', '-i <interval:number> 间隔时间（秒）')
     .option('answer', '-a 查看答案')
     .option('bias', '-b <bias:number> 标点偏好系数', { hidden: true })
